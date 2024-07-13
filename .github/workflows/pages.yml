@@ -1,0 +1,41 @@
+# SPDX-FileCopyrightText: 2024 Max Reznik <reznikmm@gmail.com>
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+
+name: Build docs
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: reznikmm/setup-gnatdoc@main # @v2
+      with:
+        prefix: prefix
+#    - name: Fix gnatdoc
+#      run: ln -v -s share/gnatdoc prefix/share/gnatdoc
+    - name: Run gnatdoc
+      run: gnatdoc -O _site -P gnat/ethernet.gpr
+    - name: Upload GitHub Pages artifact
+      uses: actions/upload-pages-artifact@v1
+
+  deploy:
+    needs: build
+
+    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
+    permissions:
+      pages: write      # to deploy to Pages
+      id-token: write   # to verify the deployment originates from an appropriate source
+
+    # Deploy to the github-pages environment
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

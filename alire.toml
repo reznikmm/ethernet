@@ -1,6 +1,6 @@
 name = "ethernet"
 description = "Root crate for ethernet namespace"
-version = "0.1.0-dev"
+version = "1.0.0"
 
 authors = ["Max Reznik"]
 maintainers = ["Max Reznik <reznikmm@gmail.com>"]
@@ -19,4 +19,3 @@ generate_c = false
 development.optimization = ["-O0"]
 development.style_checks = ["-gnaty"]
 development.contracts = "Yes"
-
