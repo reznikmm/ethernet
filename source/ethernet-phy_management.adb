@@ -12,6 +12,7 @@ package body Ethernet.PHY_Management is
    PHY_BASIC_CONTROL : constant MDIO.Register_Index := 0;
    PHY_BASIC_STATUS  : constant MDIO.Register_Index := 1;
 
+   PHY_SPEED_SEL_MSB : constant Interfaces.Unsigned_16 := 2 ** 6;
    PHY_COL_TEST      : constant Interfaces.Unsigned_16 := 2 ** 7;
    PHY_DUPLEX        : constant Interfaces.Unsigned_16 := 2 ** 8;
    PHY_RST_AN        : constant Interfaces.Unsigned_16 := 2 ** 9;
@@ -39,7 +40,8 @@ package body Ethernet.PHY_Management is
              (if Negotiation.Restart then PHY_RST_AN else 0) or PHY_AN,
            when False =>
              (if Negotiation.Duplex = Full then PHY_DUPLEX else 0) or
-             (if Negotiation.Speed = 100 then PHY_SPEED_SEL_LSB else 0)) or
+             (if Negotiation.Speed = 100 then PHY_SPEED_SEL_LSB else 0) or
+             (if Negotiation.Speed = 1000 then PHY_SPEED_SEL_MSB else 0)) or
         (if Loopback then PHY_LOOPBACK else 0);
    begin
       MDIO.Write_Register (PHY, PHY_BASIC_CONTROL, Value, Success);
@@ -68,6 +70,8 @@ package body Ethernet.PHY_Management is
             l0_BASE_T_Half_Duplex     => (Value and 2**11) /= 0,
             l00_BASE_T2_Full_Duplex   => (Value and 2**10) /= 0,
             l00_BASE_T2_Half_Duplex   => (Value and 2**9) /= 0,
+            Extended_Status           => (Value and 2**8) /= 0,
+            MF_Preamble_Suppression   => (Value and 2**7) /= 0,
             Auto_Negotiation_Complete => (Value and 2**5) /= 0,
             Remote_Fault              => (Value and 2**4) /= 0,
             Auto_Negotiation_Ability  => (Value and 2**3) /= 0,
@@ -78,6 +82,22 @@ package body Ethernet.PHY_Management is
          Status := (others => False);
       end if;
    end Get_Status;
+
+   ----------------
+   -- Is_Link_Up --
+   ----------------
+
+   function Is_Link_Up
+     (MDIO : in out Ethernet.MDIO.MDIO_Interface'Class;
+      PHY  : Ethernet.MDIO.PHY_Index) return Boolean
+   is
+      Value   : Interfaces.Unsigned_16;
+      Success : Boolean;
+   begin
+      MDIO.Read_Register (PHY, PHY_BASIC_STATUS, Value, Success);
+
+      return Success and then (Value and 2**2) /= 0;
+   end Is_Link_Up;
 
    ----------------
    -- Power_Down --

@@ -1,13 +1,13 @@
 name = "ethernet"
-description = "Root crate for ethernet namespace"
-version = "0.1.0-dev"
+description = "Root crate for ethernet namespace and MDIO/SMI/MIIM interface"
+version = "1.0.0"
 
 authors = ["Max Reznik"]
 maintainers = ["Max Reznik <reznikmm@gmail.com>"]
 maintainers-logins = ["reznikmm"]
-licenses = "MIT OR Apache-2.0 WITH LLVM-exception"
+licenses = "Apache-2.0 WITH LLVM-exception"
 website = "https://github.com/reznikmm/ethernet"
-tags = ["network"]
+tags = ["network", "mdio", "smi", "miim", "phy", "driver"]
 project-files = ["gnat/ethernet.gpr"]
 
 [configuration]

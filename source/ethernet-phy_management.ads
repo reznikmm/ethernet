@@ -11,12 +11,26 @@
 --  parameters, power down the PHY, and retrieve the PHY status. It abstracts
 --  the low-level MDIO register access into higher-level operations suitable
 --  for typical PHY management tasks.
+--
+--  NOTE: This package implementation is based on a specific version of the
+--  IEEE 802.3 standard. Your specific device may support a different version
+--  of the standard or implement the standard partially. Please consult the
+--  datasheet for your device to ensure compatibility with this
+--  implementation. The Is_Link_Up function is likely implemented in most
+--  devices and is particularly useful.
 
 with Ethernet.MDIO;
 
 package Ethernet.PHY_Management is
 
    pragma Pure;
+
+   function Is_Link_Up
+     (MDIO : in out Ethernet.MDIO.MDIO_Interface'Class;
+      PHY  : Ethernet.MDIO.PHY_Index) return Boolean;
+   --  Check the Link_Status field in the Basic Status Register (register 1)
+   --  on the specified PHY device. Returns True if the link is up, otherwise
+   --  False.
 
    procedure Reset
      (MDIO    : in out Ethernet.MDIO.MDIO_Interface'Class;
@@ -28,8 +42,8 @@ package Ethernet.PHY_Management is
    --  @param PHY     Address of the PHY device to reset.
    --  @param Success Output parameter to indicate if the reset was successful.
 
-   type Negotiation_Speed is range 10 .. 100
-     with Static_Predicate => Negotiation_Speed in 10 | 100;
+   type Negotiation_Speed is range 10 .. 1000
+     with Static_Predicate => Negotiation_Speed in 10 | 100 | 1000;
 
    type Duplex_Mode is (Half, Full);
 
@@ -80,6 +94,8 @@ package Ethernet.PHY_Management is
       l0_BASE_T_Half_Duplex     : Boolean;  --  10Mbps with half duplex
       l00_BASE_T2_Full_Duplex   : Boolean;  --  able full duplex 100BASE-T2
       l00_BASE_T2_Half_Duplex   : Boolean;  --  able half duplex 100BASE-T2
+      Extended_Status           : Boolean;  --  extended status in register 15
+      MF_Preamble_Suppression   : Boolean;  --  MF Preamble Suppression support
       Auto_Negotiation_Complete : Boolean;  --  autonegotiate process completed
       Remote_Fault              : Boolean;  --  remote fault condition detected
       Auto_Negotiation_Ability  : Boolean;  --  able to perform autonegotiation
